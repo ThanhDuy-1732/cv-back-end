@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 // Schemas
-import { Project, ProjectSchema } from '../schemas/project.schema';
+import { Project, ProjectSchema } from 'src/app/client/schemas/project.schema';
 
 // Controllers
 import { ProjectController } from './controller/project.controller';

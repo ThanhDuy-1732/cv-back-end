@@ -12,13 +12,13 @@ import { AppService } from './app.service';
 import { mongodbDatabaseModule } from './config/index';
 
 // Modules
-import { AwardModule } from './award/app.module';
-import { SkillModule } from './skill/app.module';
-import { ProjectModule } from './project/app.module';
-import { OverviewModule } from './overview/app.module';
-import { EducationModule } from './education/app.module';
-import { InformationModule } from './information/app.module';
-import { WorkExperienceModule } from './work-experience/app.module';
+import { AwardModule } from './modules/award/app.module';
+import { SkillModule } from './modules/skill/app.module';
+import { ProjectModule } from './modules/project/app.module';
+import { OverviewModule } from './modules/overview/app.module';
+import { EducationModule } from './modules/education/app.module';
+import { InformationModule } from './modules/information/app.module';
+import { WorkExperienceModule } from './modules/work-experience/app.module';
 
 @Module({
   imports: [

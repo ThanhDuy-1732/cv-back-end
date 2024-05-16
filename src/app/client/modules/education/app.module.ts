@@ -3,7 +3,10 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 // Schemas
-import { Education, EducationSchema } from '../schemas/education.schema';
+import {
+  Education,
+  EducationSchema,
+} from 'src/app/client/schemas/education.schema';
 
 // Controllers
 import { EducationController } from './controller/eduction.controller';
