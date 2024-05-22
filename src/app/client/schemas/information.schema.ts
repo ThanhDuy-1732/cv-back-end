@@ -5,11 +5,11 @@ import mongoose, { HydratedDocument, ObjectId } from 'mongoose';
 export type InformationDocument = HydratedDocument<Information>;
 
 export enum InformationTitleEnum {
-  dob = 'DOB',
-  phone = 'Phone',
-  email = 'Email',
-  github = 'Github',
-  address = 'Address',
+  DOB = 'DOB',
+  Phone = 'Phone',
+  Email = 'Email',
+  Github = 'Github',
+  Address = 'Address',
 }
 
 @Schema()

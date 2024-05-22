@@ -9,10 +9,10 @@ import { Information } from 'src/app/client/schemas/information.schema';
 @Injectable()
 export class InformationService {
   constructor(
-    @InjectModel(Information.name) private infomationModel: Model<Information>,
+    @InjectModel(Information.name) private informationModel: Model<Information>,
   ) {}
 
   async findAll(): Promise<Array<Information>> {
-    return this.infomationModel.find().exec();
+    return this.informationModel.find().exec();
   }
 }
