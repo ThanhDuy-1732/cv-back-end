@@ -11,6 +11,9 @@ export class Project {
   @Field()
   name: string;
 
+  @Field()
+  time: string;
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @Field((type) => [String], { nullable: true })
   url?: string[];
