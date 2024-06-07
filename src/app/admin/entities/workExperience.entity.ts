@@ -1,0 +1,39 @@
+// Utilities
+import {
+  Column,
+  Entity,
+  PrimaryColumn,
+  CreateDateColumn,
+  DeleteDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+
+@Entity('workExperiences')
+export class WorkExperience {
+  @PrimaryColumn()
+  id: number;
+
+  @Column({ nullable: true })
+  _id: string;
+
+  @Column()
+  time: string;
+
+  @Column()
+  company: string;
+
+  @Column()
+  position: string;
+
+  @Column()
+  description: string;
+
+  @CreateDateColumn()
+  createdDate: Date;
+
+  @UpdateDateColumn()
+  updatedDate: Date;
+
+  @DeleteDateColumn()
+  deletedDate: Date;
+}

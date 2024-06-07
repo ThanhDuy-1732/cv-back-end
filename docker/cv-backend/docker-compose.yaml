@@ -1,0 +1,67 @@
+version: "0.0.1"
+
+services:
+  redis:
+    container_name: cv-redis
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - cv-redis:/usr/local/etc/redis
+    
+  minio:
+    image: minio/minio
+    container_name: cv-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: thankz
+      MINIO_ROOT_PASSWORD: thankz173
+    restart: always
+    volumes:
+      - ./storage:/data
+      - cv-minio:/usr/local/etc/storage:/data
+    command: server --console-address ":9001" /data
+
+  postgres:
+    image: postgres
+    container_name: cv-postgres
+    restart: always
+    build:
+      context: ../../docker/postgres/
+      dockerfile: Dockerfile
+    ports:
+      - 5434:5432
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - POSTGRES_USER=cvadmin
+      - POSTGRES_DB=cvDatabase
+      - POSTGRES_PASSWORD=abcd@1234
+    volumes:
+      - cv-postgres:/var/lib/postgresql/data
+  
+  elasticsearch:
+    container_name: cv-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.4
+    restart: always
+    ports:
+      - 9201:9200
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+    mem_limit: 1073741824
+    volumes:
+      - cv-elasticsearch:/usr/share/elasticsearch/data
+
+volumes:
+  cv-minio:
+    external: false
+  cv-postgres:
+    external: false
+  cv-redis:
+    external: false
+  cv-elasticsearch:
+    external: false
+  
