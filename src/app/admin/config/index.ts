@@ -1,4 +1,5 @@
 // Utilities
+import { BullModule } from '@nestjs/bull';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
@@ -39,5 +40,19 @@ export const cacheModules = [
         ttl: Number(configService.get('REDIS_TTL')),
       };
     },
+  }),
+];
+
+export const queueModules = [
+  BullModule.forRootAsync({
+    inject: [ConfigService],
+    imports: [ConfigModule],
+
+    useFactory: async (configService: ConfigService) => ({
+      redis: {
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
+      },
+    }),
   }),
 ];

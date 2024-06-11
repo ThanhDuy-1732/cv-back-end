@@ -1,5 +1,6 @@
 // Utilities
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 // Services
@@ -16,11 +17,19 @@ import { AuthController } from './controllers/auth.controller';
 import { User } from 'src/app/admin/entities/user.entity';
 import { Session } from 'src/app/admin/entities/session.entity';
 
+// Queues
+import { SessionConsumer } from 'src/app/admin/queues/sessionQueue.consumer';
+import { SessionQueueProducer } from 'src/app/admin/queues/sessionQueue.producer';
+
 // Modules
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from 'src/app/admin/modules/user/user.module';
 import { CryptoService } from 'src/app/admin/services/crypto.service';
+import { EventModule } from 'src/app/admin/modules/event/event.module';
+
+// Constants
+import { QUEUES } from '../../constants/queue';
 
 @Module({
   exports: [AuthService],
@@ -33,9 +42,14 @@ import { CryptoService } from 'src/app/admin/services/crypto.service';
     ConfigService,
     CryptoService,
     RefreshJwtStrategy,
+
+    // Queues
+    SessionConsumer,
+    SessionQueueProducer,
   ],
   imports: [
     UserModule,
+    EventModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       imports: [ConfigModule],
@@ -48,6 +62,7 @@ import { CryptoService } from 'src/app/admin/services/crypto.service';
       }),
     }),
     TypeOrmModule.forFeature([User, Session]),
+    BullModule.registerQueue({ name: QUEUES.SESSION }),
   ],
 })
 export class AuthModule {}
