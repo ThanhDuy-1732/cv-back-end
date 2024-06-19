@@ -1,10 +1,14 @@
 // Utilities
-import { DataSource, Equal, IsNull, Not, Or, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { DataSource, IsNull, Like, Not, Or, Repository } from 'typeorm';
 
 // DTOs
-import { AuthGetTokenDTO, AuthSignInDTO } from '../dto/auth.dto';
+import {
+  AuthSignInDTO,
+  AuthSignOutDTO,
+  AuthGetTokenDTO,
+} from '../dto/auth.dto';
 
 // Entities
 import {
@@ -106,7 +110,7 @@ export class AuthService {
           state: SessionState.Active,
           userId: addedTokenSession.userId,
           createdDate: Not(addedTokenSession.createdDate),
-          userAgent: Or(Equal(addedTokenSession.userAgent), IsNull()),
+          userAgent: Or(Like(addedTokenSession.userAgent), IsNull()),
         },
       });
 
@@ -140,7 +144,7 @@ export class AuthService {
           type: SessionType.RefreshToken,
           userId: addedRefreshToken.userId,
           createdDate: Not(addedRefreshToken.createdDate),
-          userAgent: Or(Equal(addedRefreshToken.userAgent), IsNull()),
+          userAgent: Or(Like(addedRefreshToken.userAgent), IsNull()),
         },
       });
 
@@ -156,28 +160,38 @@ export class AuthService {
       await this.cacheService.set(
         `user_session_${addedTokenSession.id}`,
         addedTokenSession,
-        this.configService.get('REDIS_TTL'),
+        this.configService.get('REDIS_TTL_1D'),
       );
 
       await this.cacheService.set(
         `user_refresh_session_${addedRefreshToken.id}`,
         addedRefreshToken,
-        this.configService.get('REDIS_TTL'),
+        this.configService.get('REDIS_TTL_7D'),
       );
 
-      const token = this.jwtService.sign({
-        id: user.id,
-        type: SessionType.Token,
-        username: user.username,
-        sessionId: tokenSession.id,
-      });
+      const token = this.jwtService.sign(
+        {
+          id: user.id,
+          type: SessionType.Token,
+          username: user.username,
+          sessionId: tokenSession.id,
+        },
+        {
+          expiresIn: '1d',
+        },
+      );
 
-      const refreshToken = this.jwtService.sign({
-        id: user.id,
-        username: user.username,
-        type: SessionType.RefreshToken,
-        sessionId: refreshTokenSession.id,
-      });
+      const refreshToken = this.jwtService.sign(
+        {
+          id: user.id,
+          username: user.username,
+          type: SessionType.RefreshToken,
+          sessionId: refreshTokenSession.id,
+        },
+        {
+          expiresIn: '7d',
+        },
+      );
 
       await queryRunner.commitTransaction();
 
@@ -208,7 +222,7 @@ export class AuthService {
     await this.cacheService.set(
       `user_session_${addedTokenSession.id}`,
       addedTokenSession,
-      this.configService.get('REDIS_TTL'),
+      this.configService.get('REDIS_TTL_1D'),
     );
 
     return this.jwtService.sign({
@@ -219,8 +233,46 @@ export class AuthService {
     });
   }
 
-  async signOut(): Promise<any> {
-    return 'Sign out';
+  async signOut(payload: AuthSignOutDTO): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const token = await this.sessionRepository.find({
+        where: {
+          userId: payload.userId,
+          type: SessionType.Token,
+          state: SessionState.Active,
+          userAgent: payload.userAgent,
+        },
+      });
+
+      token[0].state = SessionState.InActive;
+      await queryRunner.manager.save(token[0]);
+      await this.cacheService.del(`user_session_${token[0].id}`);
+
+      const refreshToken = await this.sessionRepository.find({
+        where: {
+          userId: payload.userId,
+          state: SessionState.Active,
+          userAgent: payload.userAgent,
+          type: SessionType.RefreshToken,
+        },
+      });
+
+      refreshToken[0].state = SessionState.InActive;
+      await queryRunner.manager.save(refreshToken[0]);
+
+      await this.cacheService.del(`user_refresh_session_${refreshToken[0].id}`);
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async forgotPassword(): Promise<any> {

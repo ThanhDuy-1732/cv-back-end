@@ -7,8 +7,9 @@ import {
   UseGuards,
   Controller,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { ZodValidationPipe } from 'nestjs-zod';
 
 // Services
@@ -37,7 +38,7 @@ export class AuthController {
     const { token, refreshToken }: SignInData =
       await this.authService.signIn(payload);
 
-    return res.status(HttpStatus.OK).json({
+    res.status(HttpStatus.OK).json({
       token,
       refreshToken,
     });
@@ -62,5 +63,20 @@ export class AuthController {
     res.status(HttpStatus.OK).json({
       token,
     });
+  }
+
+  @Get('/sign-out')
+  @UseGuards(JwtAuthGuard)
+  async logout(
+    @Req() request: Request,
+    @GetUser() user: User,
+    @Res() res: Response,
+  ) {
+    await this.authService.signOut({
+      userId: user.id,
+      userAgent: request.headers['user-agent'],
+    });
+
+    res.status(HttpStatus.OK).json({});
   }
 }

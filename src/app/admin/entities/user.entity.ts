@@ -32,6 +32,12 @@ export class User {
   @Column({ select: false })
   password: string;
 
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  email: string;
+
   @Column({
     type: 'enum',
     enum: UserRoles,

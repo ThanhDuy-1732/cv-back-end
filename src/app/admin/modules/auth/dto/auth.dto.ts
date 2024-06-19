@@ -2,7 +2,7 @@ import { z } from 'Zod';
 import { createZodDto } from 'nestjs-zod';
 
 export const authSignInSchema = z.object({
-  userAgent: z.string().trim().optional(),
+  userAgent: z.string().trim(),
   username: z.string().max(100).trim(),
   password: z.string().max(100).trim(),
 });
@@ -16,3 +16,10 @@ export const authGetTokenSchema = z.object({
 });
 
 export class AuthGetTokenDTO extends createZodDto(authGetTokenSchema) {}
+
+export const authSignOutSchema = z.object({
+  userAgent: z.string(),
+  userId: z.number().positive(),
+});
+
+export class AuthSignOutDTO extends createZodDto(authSignOutSchema) {}
