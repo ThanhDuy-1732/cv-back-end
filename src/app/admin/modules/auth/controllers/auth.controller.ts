@@ -2,12 +2,12 @@
 import {
   Get,
   Res,
+  Req,
   Body,
   Post,
   UseGuards,
   Controller,
   HttpStatus,
-  Req,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ZodValidationPipe } from 'nestjs-zod';
@@ -54,10 +54,15 @@ export class AuthController {
 
   @Get('/token')
   @UseGuards(RefreshJwtAuthGuard)
-  async getUserToken(@Res() res: Response, @GetUser() user: User) {
+  async getUserToken(
+    @Res() res: Response,
+    @GetUser() user: User,
+    @Req() request: Request,
+  ) {
     const token = await this.authService.getToken({
       userId: user.id,
       username: user.username,
+      userAgent: request.headers['user-agent'],
     });
 
     res.status(HttpStatus.OK).json({

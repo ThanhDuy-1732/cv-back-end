@@ -208,29 +208,62 @@ export class AuthService {
   }
 
   async getToken(payload: AuthGetTokenDTO): Promise<string> {
-    const session = new Session();
-    session.userId = payload.userId;
-    session.type = SessionType.Token;
-    session.state = SessionState.Active;
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    if (payload.userAgent) {
-      session.userAgent = payload.userAgent;
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const session = new Session();
+      session.userId = payload.userId;
+      session.type = SessionType.Token;
+      session.state = SessionState.Active;
+
+      if (payload.userAgent) {
+        session.userAgent = payload.userAgent;
+      }
+
+      const addedTokenSession = await queryRunner.manager.save(session);
+
+      await this.cacheService.set(
+        `user_session_${addedTokenSession.id}`,
+        addedTokenSession,
+        this.configService.get('REDIS_TTL_1D'),
+      );
+
+      const sessions = await this.sessionRepository.find({
+        where: {
+          type: SessionType.Token,
+          state: SessionState.Active,
+          userId: addedTokenSession.userId,
+          createdDate: Not(addedTokenSession.createdDate),
+          userAgent: Or(Like(addedTokenSession.userAgent), IsNull()),
+        },
+      });
+
+      for (const preSession of sessions) {
+        preSession.state = SessionState.InActive;
+        const updatedPreSession = await queryRunner.manager.save(preSession);
+        await this.sessionQueueProducer.producerSessionUpdatedEvent(
+          updatedPreSession,
+        );
+      }
+
+      await queryRunner.commitTransaction();
+
+      return this.jwtService.sign({
+        id: payload.userId,
+        sessionId: session.id,
+        type: SessionType.Token,
+        username: payload.username,
+      });
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    const addedTokenSession = await this.sessionRepository.save(session);
-
-    await this.cacheService.set(
-      `user_session_${addedTokenSession.id}`,
-      addedTokenSession,
-      this.configService.get('REDIS_TTL_1D'),
-    );
-
-    return this.jwtService.sign({
-      id: payload.userId,
-      sessionId: session.id,
-      type: SessionType.Token,
-      username: payload.username,
-    });
   }
 
   async signOut(payload: AuthSignOutDTO): Promise<void> {
