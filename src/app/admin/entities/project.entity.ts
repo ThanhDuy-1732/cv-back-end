@@ -3,10 +3,10 @@ import {
   Column,
   Entity,
   OneToMany,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 // Entities
@@ -17,7 +17,7 @@ import { ProjectResponsibility } from './projectResAndAchi.entity';
 
 @Entity('projects')
 export class Project {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: true })

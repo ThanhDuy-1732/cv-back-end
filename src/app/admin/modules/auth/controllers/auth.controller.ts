@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 // Services
 import { JwtAuthGuard } from 'src/app/admin/guard/jwt.guard';
@@ -26,10 +27,13 @@ import { AuthSignInDTO, authSignInSchema } from '../dto/auth.dto';
 // Entities
 import { User } from 'src/app/admin/entities/user.entity';
 
+@ApiBearerAuth()
+@ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Sign in' })
   @Post('/sign-in')
   async signIn(
     @Res() res: Response,
@@ -44,6 +48,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'Get user account' })
   @Get('/me')
   @UseGuards(JwtAuthGuard)
   async getUserAccount(@Res() res: Response, @GetUser() user: User) {
@@ -52,6 +57,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'Get new access token with refresh token' })
   @Get('/token')
   @UseGuards(RefreshJwtAuthGuard)
   async getUserToken(
@@ -70,6 +76,7 @@ export class AuthController {
     });
   }
 
+  @ApiOperation({ summary: 'Sign out' })
   @Get('/sign-out')
   @UseGuards(JwtAuthGuard)
   async logout(

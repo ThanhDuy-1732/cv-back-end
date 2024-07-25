@@ -3,15 +3,15 @@ import {
   Index,
   Column,
   Entity,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('awards')
 export class Award {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
@@ -31,7 +31,7 @@ export class Award {
   location: string;
 
   @Column()
-  postion: string;
+  position: string;
 
   @CreateDateColumn()
   createdDate: Date;

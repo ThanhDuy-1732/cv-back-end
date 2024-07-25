@@ -2,15 +2,19 @@
 import {
   Column,
   Entity,
-  PrimaryColumn,
+  OneToMany,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+
+// Entities
+import { WorkDescription } from './workDescription.entity';
 
 @Entity('workExperiences')
 export class WorkExperience {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: true })
@@ -25,8 +29,8 @@ export class WorkExperience {
   @Column()
   position: string;
 
-  @Column()
-  description: string;
+  @OneToMany(() => WorkDescription, (description) => description.work)
+  description: Array<WorkDescription>;
 
   @CreateDateColumn()
   createdDate: Date;

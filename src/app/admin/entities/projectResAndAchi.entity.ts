@@ -3,10 +3,10 @@ import {
   Column,
   Entity,
   ManyToOne,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 // Entities
@@ -14,7 +14,7 @@ import { Project } from './project.entity';
 
 @Entity('projectResponsibilities')
 export class ProjectResponsibility {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column()

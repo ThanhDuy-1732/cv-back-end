@@ -2,15 +2,15 @@
 import {
   Column,
   Entity,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity('overviews')
 export class Overview {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({

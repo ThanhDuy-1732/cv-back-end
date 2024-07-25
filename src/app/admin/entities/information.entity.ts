@@ -2,10 +2,10 @@
 import {
   Column,
   Entity,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 export enum InformationTitleEnum {
@@ -19,7 +19,7 @@ export enum InformationTitleEnum {
 
 @Entity('information')
 export class Information {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({

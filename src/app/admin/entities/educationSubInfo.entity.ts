@@ -3,10 +3,10 @@ import {
   Column,
   Entity,
   ManyToOne,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 // Entities
@@ -14,7 +14,7 @@ import { Education } from './education.entity';
 
 @Entity('educationSubInfos')
 export class EducationSubInfo {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column()

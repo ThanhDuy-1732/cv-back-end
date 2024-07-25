@@ -2,17 +2,19 @@
 import {
   Column,
   Entity,
-  PrimaryColumn,
+  OneToMany,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
-  OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+
+// Entities
 import { SkillItem } from './skillItem.entity';
 
 @Entity('skills')
 export class Skill {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ nullable: true })

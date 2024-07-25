@@ -3,10 +3,10 @@ import {
   Column,
   Entity,
   ManyToOne,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 // Entities
@@ -14,7 +14,7 @@ import { Skill } from './skill.entity';
 
 @Entity('skillItems')
 export class SkillItem {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column()

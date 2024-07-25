@@ -4,10 +4,10 @@ import {
   Column,
   Entity,
   OneToMany,
-  PrimaryColumn,
   CreateDateColumn,
   DeleteDateColumn,
   UpdateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 // Entities
@@ -15,7 +15,7 @@ import { EducationSubInfo } from './educationSubInfo.entity';
 
 @Entity('educations')
 export class Education {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
