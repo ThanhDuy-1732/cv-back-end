@@ -65,11 +65,11 @@ export class EducationService {
 
       education.subInfo = subInfo;
 
-      await queryRunner.manager.save(education);
+      const createdEducation = await queryRunner.manager.save(education);
 
       await queryRunner.commitTransaction();
 
-      return education;
+      return createdEducation;
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -88,7 +88,7 @@ export class EducationService {
     queryRunner: QueryRunner;
     subInfo: Array<UpdateSubInfoDTO>;
   }): Promise<Array<EducationSubInfo>> {
-    const eduSubInfo = await this.eduSubInfoRepository.find({
+    let eduSubInfo = await this.eduSubInfoRepository.find({
       relations: {
         education: true,
       },
@@ -100,13 +100,20 @@ export class EducationService {
     });
 
     const deleteSubInfo = differenceBy(eduSubInfo, subInfo, 'id');
+    // eduSubInfo = differenceBy(eduSubInfo, deleteSubInfo, 'id');
     for (const info of deleteSubInfo) {
       await queryRunner.manager.softDelete(EducationSubInfo, { id: info.id });
     }
 
+    eduSubInfo = [];
+
     for (const info of subInfo) {
       if (info.id) {
-        await queryRunner.manager.save(EducationSubInfo, info);
+        const updatedInfo = await queryRunner.manager.save(
+          EducationSubInfo,
+          info,
+        );
+        eduSubInfo.push(updatedInfo);
         continue;
       }
 
